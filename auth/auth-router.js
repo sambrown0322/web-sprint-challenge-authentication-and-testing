@@ -7,7 +7,7 @@ router.post("/register", (req, res) => {
   // implement registration
   const userInfo = req.body;
 
-  const isValid = validate(userInfo);
+  const isValid = Users.validate(userInfo);
 
   if (isValid) {
     const hash = bcrypt.hashSync(userInfo.password, 4);
@@ -28,7 +28,7 @@ router.post("/login", (req, res) => {
   // implement login
   const creds = req.body;
 
-  const isValid = validate(creds);
+  const isValid = Users.validate(creds);
 
   if (isValid) {
     Users.findBy({ username: creds.username })
@@ -47,10 +47,6 @@ router.post("/login", (req, res) => {
     res.status(400).json({ message: "Invalid info" });
   }
 });
-
-function validate(user) {
-  return user.username && user.password ? true : false;
-}
 
 function makeJwt(user) {
   const payload = {

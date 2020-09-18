@@ -1,6 +1,7 @@
 const supertest = require("supertest");
 const server = require("../api/server");
 const db = require("../database/dbConfig");
+const Users = require("./auth-helpers");
 
 describe("auth-router", () => {
   describe("POST /register", () => {
@@ -18,7 +19,7 @@ describe("auth-router", () => {
     it("returns status 201 if created successfully", async () => {
       await supertest(server)
         .post("/api/auth/register")
-        .send({ username: "Senorski", password: "poiuy999" })
+        .send({ username: "Sam", password: "poiuy999" })
         .then((res) => {
           expect(res.status).toBe(201);
         });
@@ -28,7 +29,7 @@ describe("auth-router", () => {
     it("returns status 200 if info is valid", async () => {
       await supertest(server)
         .post("/api/auth/login")
-        .send({ username: "Senorski", password: "poiuy999" })
+        .send({ username: "Sam", password: "poiuy999" })
         .then((res) => {
           expect(res.status).toBe(200);
         });
@@ -41,24 +42,30 @@ describe("auth-router", () => {
           expect(res.status).toBe(400);
         });
     });
+    it("returns token property with JWT value", async () => {
+      await supertest(server)
+        .post("/api/auth/login")
+        .send({ username: "Sam", password: "poiuy999" })
+        .then((res) => {
+          expect(res.body.token).toContain(
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+          );
+        });
+    });
   });
 });
-
-describe("jokes-router", () => {
-  describe("GET /", () => {
-    it("should return status 401", async () => {
-      await supertest(server)
-        .get("/api/jokes")
-        .then((res) => {
-          expect(res.status).toBe(401);
-        });
-    });
-    it("should return JSON", async () => {
-      await supertest(server)
-        .get("/api/jokes")
-        .then((res) => {
-          expect(res.type).toMatch(/json/i);
-        });
-    });
+describe("validate method", () => {
+  it("returns true if it has both username and password", () => {
+    const newUser = {
+      username: "Alex",
+      password: "123",
+    };
+    expect(Users.validate(newUser)).toBeTruthy();
+  });
+  it("returns false if it is missing info", () => {
+    const newUser = {
+      username: "Nate",
+    };
+    expect(Users.validate(newUser)).toBeFalsy();
   });
 });

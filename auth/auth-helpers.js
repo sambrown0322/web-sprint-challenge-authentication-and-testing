@@ -15,5 +15,8 @@ function add(user) {
 function findBy(filter) {
   return db("users").where(filter).orderBy("id");
 }
+function validate(user) {
+  return user.username && user.password ? true : false;
+}
 
-module.exports = { find, add, findBy };
+module.exports = { find, add, findBy, validate };
